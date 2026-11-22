@@ -1,0 +1,50 @@
+{
+  "2": {
+    "train": 54480,
+    "test": 33702,
+    "metrics": {
+      "Saque previsto": {
+        "roc_auc": 0.8141194835207719,
+        "brier": 0.15140754864079886,
+        "accuracy": 0.8141950032639013
+      },
+      "Saque previsto y variables dinámicas": {
+        "roc_auc": 0.8366033659764428,
+        "brier": 0.1497180446941989,
+        "accuracy": 0.8141950032639013
+      }
+    }
+  },
+  "3": {
+    "train": 54480,
+    "test": 33702,
+    "metrics": {
+      "Saque previsto": {
+        "roc_auc": 0.8141194835207719,
+        "brier": 0.15140754864079886,
+        "accuracy": 0.8141950032639013
+      },
+      "Saque previsto y variables dinámicas": {
+        "roc_auc": 0.8381618684887251,
+        "brier": 0.14946418686952598,
+        "accuracy": 0.8141950032639013
+      }
+    }
+  },
+  "5": {
+    "train": 54480,
+    "test": 33702,
+    "metrics": {
+      "Saque previsto": {
+        "roc_auc": 0.8141194835207719,
+        "brier": 0.15140754864079886,
+        "accuracy": 0.8141950032639013
+      },
+      "Saque previsto y variables dinámicas": {
+        "roc_auc": 0.8410800952243699,
+        "brier": 0.14913559452530895,
+        "accuracy": 0.8141950032639013
+      }
+    }
+  }
+}

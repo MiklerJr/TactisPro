@@ -1,0 +1,14 @@
+{
+  "test_start_year": 2023,
+  "matches": 1359,
+  "matches_without_points": 0,
+  "closed_games": 35061,
+  "reference_events": 3698,
+  "emitted_alerts": 3698,
+  "true_positives": 3698,
+  "false_positives": 0,
+  "false_negatives": 0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0
+}

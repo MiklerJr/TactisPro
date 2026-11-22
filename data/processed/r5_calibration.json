@@ -1,0 +1,60 @@
+{
+  "games": 33702,
+  "brier": 0.19821399450302124,
+  "log_loss": 0.5613480806350708,
+  "reference_probability": 0.42083333333333334,
+  "reference_brier": 0.2426712342739303,
+  "reference_log_loss": 0.6784187327533329,
+  "bins": [
+    {
+      "mean_probability": 0.006715526507712245,
+      "observed_frequency": 0.00025967281225655674,
+      "games": 3851
+    },
+    {
+      "mean_probability": 0.12679872760246266,
+      "observed_frequency": 0.09480968858131487,
+      "games": 2890
+    },
+    {
+      "mean_probability": 0.3521705964552543,
+      "observed_frequency": 0.3451038575667656,
+      "games": 3370
+    },
+    {
+      "mean_probability": 0.4320891946819487,
+      "observed_frequency": 0.4100890207715134,
+      "games": 3370
+    },
+    {
+      "mean_probability": 0.4723112975366038,
+      "observed_frequency": 0.4531157270029674,
+      "games": 3370
+    },
+    {
+      "mean_probability": 0.5000455010450204,
+      "observed_frequency": 0.49347181008902075,
+      "games": 3370
+    },
+    {
+      "mean_probability": 0.5253379709642789,
+      "observed_frequency": 0.5172106824925816,
+      "games": 3370
+    },
+    {
+      "mean_probability": 0.5530584581704805,
+      "observed_frequency": 0.5543026706231454,
+      "games": 3370
+    },
+    {
+      "mean_probability": 0.5894834024792963,
+      "observed_frequency": 0.5970326409495549,
+      "games": 3370
+    },
+    {
+      "mean_probability": 0.6678289957443991,
+      "observed_frequency": 0.6894096707208544,
+      "games": 3371
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "cutoff_year": 2023,
+  "selected_window": 5,
+  "windows": {
+    "2": {
+      "mae": 0.21961935162773524,
+      "auc": 0.7018274977503347,
+      "folds": [
+        {
+          "train_end": "2013-08-16",
+          "validation_start": "2013-08-17",
+          "validation_end": "2015-11-22",
+          "train_games": 7259,
+          "validation_games": 7301,
+          "mae": 0.22142423637193573,
+          "auc": 0.6920204646886055
+        },
+        {
+          "train_end": "2015-11-22",
+          "validation_start": "2015-11-23",
+          "validation_end": "2018-02-17",
+          "train_games": 14560,
+          "validation_games": 7378,
+          "mae": 0.2212974494703913,
+          "auc": 0.7001100950914172
+        },
+        {
+          "train_end": "2018-02-17",
+          "validation_start": "2018-02-18",
+          "validation_end": "2019-09-22",
+          "train_games": 21938,
+          "validation_games": 10084,
+          "mae": 0.22435560762980147,
+          "auc": 0.7000092703657844
+        },
+        {
+          "train_end": "2019-09-22",
+          "validation_start": "2019-09-24",
+          "validation_end": "2021-09-06",
+          "train_games": 32022,
+          "validation_games": 10324,
+          "mae": 0.2147374386825023,
+          "auc": 0.7054712593626974
+        },
+        {
+          "train_end": "2021-09-06",
+          "validation_start": "2021-09-07",
+          "validation_end": "2022-12-18",
+          "train_games": 42346,
+          "validation_games": 12134,
+          "mae": 0.21628202598404536,
+          "auc": 0.711526399243169
+        }
+      ]
+    },
+    "3": {
+      "mae": 0.21790651660746502,
+      "auc": 0.7030634028222897,
+      "folds": [
+        {
+          "train_end": "2013-08-16",
+          "validation_start": "2013-08-17",
+          "validation_end": "2015-11-22",
+          "train_games": 7259,
+          "validation_games": 7301,
+          "mae": 0.2198636809704559,
+          "auc": 0.6857907414486133
+        },
+        {
+          "train_end": "2015-11-22",
+          "validation_start": "2015-11-23",
+          "validation_end": "2018-02-17",
+          "train_games": 14560,
+          "validation_games": 7378,
+          "mae": 0.21956887309610687,
+          "auc": 0.706816620118553
+        },
+        {
+          "train_end": "2018-02-17",
+          "validation_start": "2018-02-18",
+          "validation_end": "2019-09-22",
+          "train_games": 21938,
+          "validation_games": 10084,
+          "mae": 0.2227315771221276,
+          "auc": 0.7048759705669917
+        },
+        {
+          "train_end": "2019-09-22",
+          "validation_start": "2019-09-24",
+          "validation_end": "2021-09-06",
+          "train_games": 32022,
+          "validation_games": 10324,
+          "mae": 0.21284549159738378,
+          "auc": 0.7065980891386481
+        },
+        {
+          "train_end": "2021-09-06",
+          "validation_start": "2021-09-07",
+          "validation_end": "2022-12-18",
+          "train_games": 42346,
+          "validation_games": 12134,
+          "mae": 0.2145229602512509,
+          "auc": 0.7112355928386427
+        }
+      ]
+    },
+    "5": {
+      "mae": 0.21572787283658745,
+      "auc": 0.7185485732061576,
+      "folds": [
+        {
+          "train_end": "2013-08-16",
+          "validation_start": "2013-08-17",
+          "validation_end": "2015-11-22",
+          "train_games": 7259,
+          "validation_games": 7301,
+          "mae": 0.21720698171127223,
+          "auc": 0.7037391358473781
+        },
+        {
+          "train_end": "2015-11-22",
+          "validation_start": "2015-11-23",
+          "validation_end": "2018-02-17",
+          "train_games": 14560,
+          "validation_games": 7378,
+          "mae": 0.2179235122613123,
+          "auc": 0.7179503080428857
+        },
+        {
+          "train_end": "2018-02-17",
+          "validation_start": "2018-02-18",
+          "validation_end": "2019-09-22",
+          "train_games": 21938,
+          "validation_games": 10084,
+          "mae": 0.22046498576832785,
+          "auc": 0.720760057137698
+        },
+        {
+          "train_end": "2019-09-22",
+          "validation_start": "2019-09-24",
+          "validation_end": "2021-09-06",
+          "train_games": 32022,
+          "validation_games": 10324,
+          "mae": 0.21054179366498113,
+          "auc": 0.7225363271988312
+        },
+        {
+          "train_end": "2021-09-06",
+          "validation_start": "2021-09-07",
+          "validation_end": "2022-12-18",
+          "train_games": 42346,
+          "validation_games": 12134,
+          "mae": 0.21250209077704366,
+          "auc": 0.7277570378039949
+        }
+      ]
+    }
+  }
+}

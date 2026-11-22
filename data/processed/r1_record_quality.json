@@ -1,0 +1,15 @@
+{
+  "total": 904128,
+  "complete_required": 904128,
+  "conforming": 903936,
+  "violations": {
+    "Clave partido–punto única": 0,
+    "Punto y juego positivos, enteros": 0,
+    "Juegos consecutivos dentro del partido": 0,
+    "Roles de saque y devolución coherentes": 192,
+    "Superficie admitida": 0,
+    "Aces y dobles faltas excluyentes": 0,
+    "Contadores no negativos": 0,
+    "Indicadores binarios": 0
+  }
+}

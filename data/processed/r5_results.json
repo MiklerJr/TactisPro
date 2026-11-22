@@ -1,0 +1,151 @@
+{
+  "models": {
+    "Logistic Regression": {
+      "precision": 0.5487618724559024,
+      "recall": 0.463638317690048,
+      "f1": 0.5026214610276127,
+      "roc_auc": 0.6785478743061953,
+      "confusion_matrix": [
+        [
+          14424,
+          5321
+        ],
+        [
+          7486,
+          6471
+        ]
+      ]
+    },
+    "Random Forest": {
+      "precision": 0.5623823690122033,
+      "recall": 0.6636813068711042,
+      "f1": 0.6088471144998028,
+      "roc_auc": 0.7235131116548633,
+      "confusion_matrix": [
+        [
+          12537,
+          7208
+        ],
+        [
+          4694,
+          9263
+        ]
+      ]
+    },
+    "XGBoost": {
+      "precision": 0.5802635116966927,
+      "recall": 0.6184710181271047,
+      "f1": 0.5987583671487532,
+      "roc_auc": 0.7338900366358758,
+      "confusion_matrix": [
+        [
+          13501,
+          6244
+        ],
+        [
+          5325,
+          8632
+        ]
+      ]
+    },
+    "XGBoost (GridSearch)": {
+      "precision": 0.579047744311456,
+      "recall": 0.6308662319982804,
+      "f1": 0.6038473408085588,
+      "roc_auc": 0.733946335879911,
+      "confusion_matrix": [
+        [
+          13344,
+          6401
+        ],
+        [
+          5152,
+          8805
+        ]
+      ]
+    }
+  },
+  "gridsearch": {
+    "best_params": {
+      "colsample_bytree": 0.9,
+      "learning_rate": 0.05,
+      "max_depth": 7,
+      "n_estimators": 100,
+      "subsample": 0.9
+    },
+    "best_cv_roc_auc": 0.7227409201662262,
+    "test_metrics": {
+      "precision": 0.579047744311456,
+      "recall": 0.6308662319982804,
+      "f1": 0.6038473408085588,
+      "roc_auc": 0.733946335879911,
+      "confusion_matrix": [
+        [
+          13344,
+          6401
+        ],
+        [
+          5152,
+          8805
+        ]
+      ]
+    }
+  },
+  "rfe_metrics": {
+    "precision": 0.5504084898509223,
+    "recall": 0.4682238303360321,
+    "f1": 0.5060007742934572,
+    "roc_auc": 0.6786254848915273,
+    "confusion_matrix": [
+      [
+        14407,
+        5338
+      ],
+      [
+        7422,
+        6535
+      ]
+    ]
+  },
+  "rfe_selected_features": [
+    "p1_df_W5",
+    "p1_1st_pct_W5",
+    "p1_svr_pts_won_W5",
+    "p2_df_W5",
+    "p2_1st_pct_W5",
+    "p2_svr_pts_won_W5",
+    "winners_W5",
+    "ue_W5",
+    "error_rate_W5",
+    "win_trend_W5",
+    "M_A_t",
+    "N_t",
+    "abs_N_t",
+    "abs_N_diff",
+    "N_sign",
+    "N_rel_change",
+    "N_volatility",
+    "M_diff",
+    "M_A_minus_prev",
+    "M_B_minus_prev"
+  ],
+  "shap_importance": {
+    "p1_serve_wr_W5": 0.029502786695957184,
+    "M_B_minus_prev": 0.03954034298658371,
+    "p1_df_W5": 0.04040879011154175,
+    "win_trend_W5": 0.04111140966415405,
+    "M_A_minus_prev": 0.04954454302787781,
+    "p1_1st_pct_W5": 0.060101188719272614,
+    "p1_svr_pts_won_W5": 0.06518947333097458,
+    "M_A_t": 0.06686783581972122,
+    "p2_df_W5": 0.06745707988739014,
+    "p2_1st_pct_W5": 0.07546941190958023,
+    "M_B_t": 0.07700267434120178,
+    "p2_svr_pts_won_W5": 0.11200688034296036,
+    "p1_return_wr_W5": 0.1120072677731514,
+    "N_t": 0.2401755154132843,
+    "abs_N_t": 0.47864043712615967
+  },
+  "n_features_total": 28,
+  "n_features_rfe": 20
+}

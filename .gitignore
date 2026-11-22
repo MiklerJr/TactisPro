@@ -1,0 +1,35 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+/notebooks_finales/
+
+# macOS / Linux
+.DS_Store
+Thumbs.db
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Local research material, session packages and editor configuration
+/docs_tesis/
+/datos/
+/presentation/
+/state/
+/*.docx
+/.opencode/
+/opencode.jsonc
+/build_pptx.py
+/dashboard/PLAN_*.md
+
+# Locally trained replay models
+/data/processed/replay_models.joblib

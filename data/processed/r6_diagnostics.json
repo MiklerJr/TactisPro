@@ -1,0 +1,100 @@
+{
+  "train_eligible": 37126,
+  "train_with_crossing": 23398,
+  "validation_eligible": 8509,
+  "validation_with_crossing": 5598,
+  "validation_horizon_mae": {
+    "Mediana constante": 3.516791711325473,
+    "GRU publicada": 3.3085991401210686,
+    "Mediana condicionada": 3.2996605930689533,
+    "Árboles con contexto, profundidad 2": 3.22868667816452,
+    "Árboles con contexto, profundidad 4": 3.1800982549282124,
+    "Árboles con contexto, profundidad 6": 3.177219182602799
+  },
+  "gru_error_diagnostics": {
+    "horizonte observado": [
+      {
+        "interval": "(0.0, 2.0]",
+        "n": 1936,
+        "mae": 2.008057617574684,
+        "error_share": 0.2098961517385678
+      },
+      {
+        "interval": "(2.0, 5.0]",
+        "n": 1554,
+        "mae": 1.2556307598890946,
+        "error_share": 0.10535033334168335
+      },
+      {
+        "interval": "(5.0, 10.0]",
+        "n": 1338,
+        "mae": 3.338101000618329,
+        "error_share": 0.24114515447407459
+      },
+      {
+        "interval": "(10.0, inf]",
+        "n": 770,
+        "mae": 10.670531297504128,
+        "error_share": 0.4436083604456743
+      }
+    ],
+    "distancia a cero": [
+      {
+        "interval": "(-inf, 0.1]",
+        "n": 934,
+        "mae": 2.2688712850372594,
+        "error_share": 0.11441413676235151
+      },
+      {
+        "interval": "(0.1, 0.3]",
+        "n": 1147,
+        "mae": 2.764592572202242,
+        "error_share": 0.17120541947676005
+      },
+      {
+        "interval": "(0.3, 0.6]",
+        "n": 1380,
+        "mae": 3.4423299467218094,
+        "error_share": 0.2564806081419811
+      },
+      {
+        "interval": "(0.6, inf]",
+        "n": 2137,
+        "mae": 3.968651941685014,
+        "error_share": 0.45789983561890735
+      }
+    ],
+    "juegos con el signo vigente": [
+      {
+        "interval": "(-inf, 2.0]",
+        "n": 2451,
+        "mae": 3.3154476282792107,
+        "error_share": 0.43874121808244093
+      },
+      {
+        "interval": "(2.0, 5.0]",
+        "n": 1251,
+        "mae": 3.6113956170878727,
+        "error_share": 0.24392444732693644
+      },
+      {
+        "interval": "(5.0, inf]",
+        "n": 1786,
+        "mae": 3.089725442455971,
+        "error_share": 0.29793690158338787
+      }
+    ]
+  },
+  "validation_probabilities": {
+    "Frecuencia de entrenamiento": {
+      "brier": 0.2258352745397601,
+      "log_loss": 0.6440836089255313,
+      "roc_auc": 0.5
+    },
+    "Árboles con contexto": {
+      "brier": 0.18431135179143185,
+      "log_loss": 0.546958790638175,
+      "roc_auc": 0.7583028254312252
+    }
+  }
+}

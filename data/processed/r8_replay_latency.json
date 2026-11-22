@@ -1,0 +1,471 @@
+{
+  "match_id": "20260130-M-Australian_Open-SF-Alexander_Zverev-Carlos_Alcaraz",
+  "samples": 30,
+  "hardware": [
+    "Model Name: MacBook Air",
+    "Model Identifier: Mac16,12",
+    "Chip: Apple M4",
+    "Total Number of Cores: 10 (4 performance and 6 efficiency)",
+    "Memory: 16 GB"
+  ],
+  "os": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
+  "browser": "Chrome/158.0.8127.36",
+  "summary_ms": {
+    "first": {
+      "p50": 162.20000000298023,
+      "p95": 178.785000000149
+    },
+    "settled": {
+      "p50": 470.1499999985099,
+      "p95": 488.21999999918046
+    },
+    "http": {
+      "p50": 20.86602149938699,
+      "p95": 23.728060596840802
+    },
+    "alerta": {
+      "p50": 0.32939549782895483,
+      "p95": 0.4273142527381424
+    },
+    "lectura": {
+      "p50": 12.9585,
+      "p95": 15.857349999999999
+    },
+    "preparacion": {
+      "p50": 3.872,
+      "p95": 4.818999999999997
+    },
+    "inferencia": {
+      "p50": 1.709,
+      "p95": 1.9206499999999997
+    },
+    "shap": {
+      "p50": 1.045,
+      "p95": 1.3029499999999998
+    }
+  },
+  "visual": [
+    {
+      "game": 2,
+      "first": 179.10000000149012,
+      "settled": 494.29999999701977
+    },
+    {
+      "game": 3,
+      "first": 182.59999999403954,
+      "settled": 475.5
+    },
+    {
+      "game": 4,
+      "first": 167.5,
+      "settled": 483.29999999701977
+    },
+    {
+      "game": 5,
+      "first": 172.39999999850988,
+      "settled": 488.3999999985099
+    },
+    {
+      "game": 6,
+      "first": 153.29999999701977,
+      "settled": 469.19999999552965
+    },
+    {
+      "game": 7,
+      "first": 170.10000000149012,
+      "settled": 466.5
+    },
+    {
+      "game": 8,
+      "first": 159.80000000447035,
+      "settled": 473
+    },
+    {
+      "game": 9,
+      "first": 152.5,
+      "settled": 468.3999999985099
+    },
+    {
+      "game": 10,
+      "first": 160,
+      "settled": 457.40000000596046
+    },
+    {
+      "game": 11,
+      "first": 162.70000000298023,
+      "settled": 458.40000000596046
+    },
+    {
+      "game": 12,
+      "first": 154.20000000298023,
+      "settled": 470.8999999985099
+    },
+    {
+      "game": 13,
+      "first": 161.70000000298023,
+      "settled": 474.20000000298023
+    },
+    {
+      "game": 14,
+      "first": 178.39999999850988,
+      "settled": 469.8999999985099
+    },
+    {
+      "game": 15,
+      "first": 153.10000000149012,
+      "settled": 465.30000000447035
+    },
+    {
+      "game": 16,
+      "first": 153.79999999701977,
+      "settled": 470.79999999701977
+    },
+    {
+      "game": 17,
+      "first": 147.29999999701977,
+      "settled": 464.3999999985099
+    },
+    {
+      "game": 18,
+      "first": 169.89999999850988,
+      "settled": 466.79999999701977
+    },
+    {
+      "game": 19,
+      "first": 161.10000000149012,
+      "settled": 478
+    },
+    {
+      "game": 20,
+      "first": 159,
+      "settled": 470.3999999985099
+    },
+    {
+      "game": 21,
+      "first": 163.89999999850988,
+      "settled": 459.09999999403954
+    },
+    {
+      "game": 22,
+      "first": 155.70000000298023,
+      "settled": 472
+    },
+    {
+      "game": 23,
+      "first": 170.30000000447035,
+      "settled": 483.1000000014901
+    },
+    {
+      "game": 24,
+      "first": 145.89999999850988,
+      "settled": 461.5
+    },
+    {
+      "game": 25,
+      "first": 170.29999999701977,
+      "settled": 488
+    },
+    {
+      "game": 26,
+      "first": 159.19999999552965,
+      "settled": 456.8999999985099
+    },
+    {
+      "game": 27,
+      "first": 173.10000000149012,
+      "settled": 473
+    },
+    {
+      "game": 28,
+      "first": 165,
+      "settled": 463.5
+    },
+    {
+      "game": 29,
+      "first": 170.39999999850988,
+      "settled": 469.09999999403954
+    },
+    {
+      "game": 30,
+      "first": 158.79999999701977,
+      "settled": 470.59999999403954
+    },
+    {
+      "game": 31,
+      "first": 172.69999999552965,
+      "settled": 465.5
+    }
+  ],
+  "stages": [
+    {
+      "game": 2,
+      "http": 31.51087500009453,
+      "alerta": 0.8239590024459176,
+      "lectura": 19.742,
+      "preparacion": 5.364,
+      "inferencia": 2.091,
+      "shap": 1.337
+    },
+    {
+      "game": 3,
+      "http": 22.827000000688713,
+      "alerta": 0.40862499736249447,
+      "lectura": 15.397,
+      "preparacion": 3.992,
+      "inferencia": 1.347,
+      "shap": 1.049
+    },
+    {
+      "game": 4,
+      "http": 21.15691700601019,
+      "alerta": 0.32129200553754345,
+      "lectura": 13.677,
+      "preparacion": 4.013,
+      "inferencia": 1.372,
+      "shap": 1.097
+    },
+    {
+      "game": 5,
+      "http": 20.45695800188696,
+      "alerta": 0.2989169952343218,
+      "lectura": 13.181,
+      "preparacion": 3.755,
+      "inferencia": 1.62,
+      "shap": 1.017
+    },
+    {
+      "game": 6,
+      "http": 21.120707999216393,
+      "alerta": 0.4299580032238737,
+      "lectura": 13.656,
+      "preparacion": 3.774,
+      "inferencia": 1.711,
+      "shap": 1.037
+    },
+    {
+      "game": 7,
+      "http": 20.910833998641465,
+      "alerta": 0.37145899841561913,
+      "lectura": 12.972,
+      "preparacion": 3.768,
+      "inferencia": 1.788,
+      "shap": 1.265
+    },
+    {
+      "game": 8,
+      "http": 21.446999999170657,
+      "alerta": 0.31025000498630106,
+      "lectura": 12.434,
+      "preparacion": 5.188,
+      "inferencia": 1.777,
+      "shap": 1.087
+    },
+    {
+      "game": 9,
+      "http": 20.0323750032112,
+      "alerta": 0.32212500082096085,
+      "lectura": 12.371,
+      "preparacion": 4.082,
+      "inferencia": 1.631,
+      "shap": 1.013
+    },
+    {
+      "game": 10,
+      "http": 20.53508300014073,
+      "alerta": 0.3256249983678572,
+      "lectura": 12.911,
+      "preparacion": 3.648,
+      "inferencia": 1.65,
+      "shap": 1.0
+    },
+    {
+      "game": 11,
+      "http": 20.37633299914887,
+      "alerta": 0.3464580004219897,
+      "lectura": 12.945,
+      "preparacion": 3.775,
+      "inferencia": 1.621,
+      "shap": 1.117
+    },
+    {
+      "game": 12,
+      "http": 20.19179199851351,
+      "alerta": 0.30079199495958164,
+      "lectura": 11.822,
+      "preparacion": 4.32,
+      "inferencia": 1.816,
+      "shap": 1.031
+    },
+    {
+      "game": 13,
+      "http": 20.98516699334141,
+      "alerta": 0.2977499971166253,
+      "lectura": 13.282,
+      "preparacion": 3.844,
+      "inferencia": 1.623,
+      "shap": 1.021
+    },
+    {
+      "game": 14,
+      "http": 20.416999999724794,
+      "alerta": 0.31879200105322525,
+      "lectura": 12.717,
+      "preparacion": 3.799,
+      "inferencia": 1.644,
+      "shap": 1.03
+    },
+    {
+      "game": 15,
+      "http": 21.574958998826332,
+      "alerta": 0.37391699879663065,
+      "lectura": 13.979,
+      "preparacion": 3.672,
+      "inferencia": 1.835,
+      "shap": 1.118
+    },
+    {
+      "game": 16,
+      "http": 20.63679199636681,
+      "alerta": 0.30504099413519725,
+      "lectura": 12.432,
+      "preparacion": 4.134,
+      "inferencia": 1.713,
+      "shap": 1.087
+    },
+    {
+      "game": 17,
+      "http": 20.27020900277421,
+      "alerta": 0.3255420015193522,
+      "lectura": 12.88,
+      "preparacion": 3.769,
+      "inferencia": 1.627,
+      "shap": 1.027
+    },
+    {
+      "game": 18,
+      "http": 21.059083999716677,
+      "alerta": 0.38029099960112944,
+      "lectura": 13.694,
+      "preparacion": 3.772,
+      "inferencia": 1.617,
+      "shap": 1.014
+    },
+    {
+      "game": 19,
+      "http": 20.368541998323053,
+      "alerta": 0.3265409977757372,
+      "lectura": 12.569,
+      "preparacion": 3.717,
+      "inferencia": 1.958,
+      "shap": 1.102
+    },
+    {
+      "game": 20,
+      "http": 20.948666002368554,
+      "alerta": 0.36100000579608604,
+      "lectura": 12.488,
+      "preparacion": 4.368,
+      "inferencia": 1.772,
+      "shap": 1.041
+    },
+    {
+      "game": 21,
+      "http": 20.735874997626524,
+      "alerta": 0.3478340004221536,
+      "lectura": 12.986,
+      "preparacion": 3.764,
+      "inferencia": 1.627,
+      "shap": 1.008
+    },
+    {
+      "game": 22,
+      "http": 21.684374994947575,
+      "alerta": 0.4240830021444708,
+      "lectura": 13.592,
+      "preparacion": 4.21,
+      "inferencia": 1.817,
+      "shap": 1.035
+    },
+    {
+      "game": 23,
+      "http": 20.86645900271833,
+      "alerta": 0.33224999788217247,
+      "lectura": 12.751,
+      "preparacion": 4.188,
+      "inferencia": 1.845,
+      "shap": 1.078
+    },
+    {
+      "game": 24,
+      "http": 19.727915998373646,
+      "alerta": 0.3096669970545918,
+      "lectura": 12.278,
+      "preparacion": 3.881,
+      "inferencia": 1.619,
+      "shap": 0.994
+    },
+    {
+      "game": 25,
+      "http": 20.865583996055648,
+      "alerta": 0.31504200160270557,
+      "lectura": 13.559,
+      "preparacion": 3.789,
+      "inferencia": 1.564,
+      "shap": 1.037
+    },
+    {
+      "game": 26,
+      "http": 21.99174999987008,
+      "alerta": 0.3411659999983385,
+      "lectura": 13.955,
+      "preparacion": 3.863,
+      "inferencia": 1.875,
+      "shap": 1.247
+    },
+    {
+      "game": 27,
+      "http": 20.75554100156296,
+      "alerta": 0.3622500007622875,
+      "lectura": 12.927,
+      "preparacion": 4.121,
+      "inferencia": 1.73,
+      "shap": 1.028
+    },
+    {
+      "game": 28,
+      "http": 20.353708998300135,
+      "alerta": 0.3255420015193522,
+      "lectura": 12.729,
+      "preparacion": 3.888,
+      "inferencia": 1.716,
+      "shap": 1.051
+    },
+    {
+      "game": 29,
+      "http": 24.465291993692517,
+      "alerta": 0.35512499744072556,
+      "lectura": 16.234,
+      "preparacion": 3.96,
+      "inferencia": 1.847,
+      "shap": 1.334
+    },
+    {
+      "game": 30,
+      "http": 21.20462500170106,
+      "alerta": 0.319874998240266,
+      "lectura": 13.33,
+      "preparacion": 4.186,
+      "inferencia": 1.707,
+      "shap": 1.053
+    },
+    {
+      "game": 31,
+      "http": 20.452791002753656,
+      "alerta": 0.37066700315335765,
+      "lectura": 12.934,
+      "preparacion": 3.86,
+      "inferencia": 1.642,
+      "shap": 1.049
+    }
+  ]
+}
