@@ -438,29 +438,11 @@ def main() -> None:
             live_playing=False, game_forecasts={}, pending_forecasts={}, forecast_errors={},
         )
 
-    live = resolve_live_state(points, st.session_state["live_point"])
-    completed = live["completed"]
     match_row = identity[identity["match_id"] == selected_match]
     match_row = match_row.iloc[0] if not match_row.empty else pd.Series(dtype=object)
     p1_name = str(match_row.get("player_1") or "Jugador 1")
     p2_name = str(match_row.get("player_2") or "Jugador 2")
     match_title = _match_title(match_row) if len(match_row) else selected_match
-    timer_running = st.session_state["live_playing"]
-
-    forecasts = st.session_state.game_forecasts
-    pending = st.session_state.setdefault("pending_forecasts", {})
-    errors = st.session_state.setdefault("forecast_errors", {})
-    for game, future in list(pending.items()):
-        if future.done():
-            del pending[game]
-            try:
-                forecasts[game] = future.result()
-            except RuntimeError as exc:
-                errors[game] = str(exc)
-
-    if (0 < completed < total_games and completed not in forecasts
-            and completed not in pending and completed not in errors):
-        pending[completed] = request_game(selected_match, completed)
 
     def restart() -> None:
         for future in st.session_state.pending_forecasts.values():
@@ -475,89 +457,15 @@ def main() -> None:
     def toggle_playback() -> None:
         state = st.session_state
         state.live_playing = not state.live_playing
-        if state.live_playing and resolve_live_state(points, state.live_point)["game_closed"]:
-            state.live_point = min(state.live_point + 1, total_points)
         state.last_tick = time.monotonic()
 
-    @st.fragment(run_every=speed if timer_running else 0.5 if pending else None)
-    def replay_controls() -> None:
-        state = st.session_state
-        point = state.live_point
-        if state.live_playing and time.monotonic() - state.last_tick >= speed * 0.9:
-            point = min(point + 1, total_points)
-            state.live_point = point
-            state.last_tick = time.monotonic()
-            if point >= total_points:
-                state.live_playing = False
-
-        current = resolve_live_state(points, point)
-        if (current["completed"] != completed or state.live_playing != timer_running
-                or any(future.done() for future in pending.values())):
-            st.rerun()
-
-        st.caption(f"{match_title} · Juego {current['current_game']} de {total_games}")
-        score_col, replay_col = st.columns([1, 1.2])
-        with score_col:
-            visible_momentum = match_momentum.loc[match_momentum["game_num"].le(current["completed"])]
-            last_momentum = None if visible_momentum.empty else visible_momentum.iloc[-1]
-            scoreboard(current, p1_name, p2_name, match_row, last_momentum, theme)
-        controls = replay_col.columns([1, 1.15, 1.15, 1.4])
-        controls[0].button("Inicio", on_click=restart, width="stretch")
-        controls[1].button("Anterior", on_click=seek, args=(max(1, point - 1),),
-                           disabled=point <= 1, width="stretch")
-        controls[2].button("Siguiente", on_click=seek, args=(min(total_points, point + 1),),
-                           disabled=point >= total_points, width="stretch")
-        label = "Pausa" if state.live_playing else "Reproducir"
-        controls[3].button(label, key="replay_toggle", on_click=toggle_playback,
-                           disabled=point >= total_points, width="stretch")
-        state.replay_cursor = point
-        replay_col.slider("Punto visible", 1, total_points, key="replay_cursor",
-                           on_change=lambda: seek(state.replay_cursor))
-
-    replay_controls()
-
-    revealed = match_momentum[match_momentum["game_num"] <= completed]
-    if completed in pending:
-        st.caption(f"Calculando el pronóstico tras el juego {completed}…")
-    elif completed in errors:
-        st.warning(f"Pronóstico del juego {completed} no disponible. {errors[completed]}")
-        if st.button("Reintentar pronóstico"):
-            del errors[completed]
-            st.rerun()
-
-    response = forecasts.get(completed)
-    next_pred = pd.Series(response["prediction"]) if response is not None else None
-
-    # Un pronóstico solo se puntúa después de observar el juego al que se refiere.
-    observed = revealed.set_index("game_num")["N"]
-    evaluated_rows = []
-    for game, result in sorted(forecasts.items()):
-        if game + 1 not in observed.index:
-            continue
-        row = result["prediction"].copy()
-        row["N_observed_next"] = float(observed.loc[game + 1])
-        row["error_abs"] = abs(row["N_pred_next"] - row["N_observed_next"])
-        row["dir_observed"] = "Aumenta" if row["N_observed_next"] > row["N_t"] else "No aumenta"
-        row["dir_correct"] = row["dir_pred"] == row["dir_observed"]
-        evaluated_rows.append(row)
-    evaluated = pd.DataFrame(evaluated_rows)
-    crossings = momentum_crossings(observed).rename("direction").reset_index()
-
-    last_game = int(revealed.iloc[-1]["game_num"]) if not revealed.empty else 0
-    recorded = points.loc[points["Gm#"].le(last_game)]
-    indicators_a = player_indicators(recorded, p1_name, p2_name)
-    indicators_b = player_indicators(recorded, p2_name, p1_name)
-
+    replay_area = st.container()
     chart_col, summary_col = st.columns([1.85, 1])
     with chart_col:
         st.markdown("**Momentum y pronóstico**")
         st.caption(f"Por encima de cero favorece a {p1_name}. Por debajo de cero favorece a "
                    f"{p2_name}. La línea discontinua muestra el valor que R4 estima para el próximo juego.")
-        visible = [column for column, show in [("N", show_n), ("M_A", show_a),
-                                               ("M_B", show_b)] if show]
-        momentum_chart(revealed, evaluated, next_pred, total_games, completed,
-                       selected_match, visible, smooth_window, show_predictions, full_match_chart,
-                       (_short_name(p1_name), _short_name(p2_name)), theme)
+        chart_slot = st.empty()
         legend = [
             (theme.OBSERVED, "Observado", show_n, "solid"),
             (theme.PLAYER_A, p1_name, show_a, "solid"),
@@ -574,20 +482,10 @@ def main() -> None:
             )
             + "</div>"
         )
-    with summary_col:
-        st.markdown("**Lectura del partido**")
-        last_points = recorded.loc[recorded["Gm#"].eq(last_game)]
-        match_readout(revealed, last_points, response, crossings, p1_name, p2_name, theme)
-        radar_panel(last_game, p1_name, p2_name, indicators_a, indicators_b, theme)
-
-    with chart_col:
-        if last_game:
-            comparison_panel(last_game, p1_name, p2_name, indicators_a, indicators_b, theme)
+        comparison_slot = st.empty()
         st.markdown("**Análisis del partido**")
         with st.expander("Historial de pronósticos"):
-            historial(evaluated)
-
-        # --- Performance del modelo ---------------------------------------------
+            history_slot = st.empty()
         with st.expander("Indicadores de los modelos (R4 y R5)"):
             r4 = metrics["r4"]
             r5 = metrics["r5"]
@@ -616,6 +514,136 @@ def main() -> None:
                     "partidos de 2023 en adelante.</div>",
                     unsafe_allow_html=True,
                 )
+    with summary_col:
+        st.markdown("**Lectura del partido**")
+        status_slot = st.empty()
+        readout_slot = st.empty()
+        radar_slot = st.empty()
+
+    rendered_game = None
+    rendered_analysis = None
+    rendered_status = None
+
+    @st.fragment(run_every=speed)
+    def render_replay() -> None:
+        nonlocal rendered_game, rendered_analysis, rendered_status
+        state = st.session_state
+        point = state.live_point
+        if state.live_playing and time.monotonic() - state.last_tick >= speed * 0.9:
+            point = min(point + 1, total_points)
+            state.live_point = point
+            state.last_tick = time.monotonic()
+            if point >= total_points:
+                state.live_playing = False
+
+        current = resolve_live_state(points, point)
+        completed = current["completed"]
+
+        forecasts = st.session_state.game_forecasts
+        pending = st.session_state.setdefault("pending_forecasts", {})
+        errors = st.session_state.setdefault("forecast_errors", {})
+        for game, future in list(pending.items()):
+            if future.done():
+                del pending[game]
+                try:
+                    forecasts[game] = future.result()
+                except RuntimeError as exc:
+                    errors[game] = str(exc)
+
+        if (0 < completed < total_games and completed not in forecasts
+                and completed not in pending and completed not in errors):
+            pending[completed] = request_game(selected_match, completed)
+
+        st.caption(f"{match_title} · Juego {current['current_game']} de {total_games}")
+        score_col, replay_col = st.columns([1, 1.2])
+        with score_col:
+            visible_momentum = match_momentum.loc[match_momentum["game_num"].le(current["completed"])]
+            last_momentum = None if visible_momentum.empty else visible_momentum.iloc[-1]
+            scoreboard(current, p1_name, p2_name, match_row, last_momentum, theme)
+        controls = replay_col.columns([1, 1.15, 1.15, 1.4])
+        controls[0].button("Inicio", on_click=restart, width="stretch")
+        controls[1].button("Anterior", on_click=seek, args=(max(1, point - 1),),
+                           disabled=point <= 1, width="stretch")
+        controls[2].button("Siguiente", on_click=seek, args=(min(total_points, point + 1),),
+                           disabled=point >= total_points, width="stretch")
+        label = "Pausa" if state.live_playing else "Reproducir"
+        controls[3].button(label, key="replay_toggle", on_click=toggle_playback,
+                           disabled=point >= total_points, width="stretch")
+        state.replay_cursor = point
+        replay_col.slider("Punto visible", 1, total_points, key="replay_cursor",
+                           on_change=lambda: seek(state.replay_cursor))
+
+        if completed in errors:
+            replay_col.button("Reintentar pronóstico", on_click=errors.pop, args=(completed,))
+
+        status = errors.get(completed, "")
+        if completed in pending:
+            status = f"Calculando el pronóstico tras el juego {completed}…"
+        if status != rendered_status:
+            status_slot.html(f'<div style="min-height:1rem;color:{theme.MUTED};font-size:0.75rem" '
+                             f'role="status">{escape(status)}</div>')
+            rendered_status = status
+
+        visible_forecasts = tuple(game for game in forecasts if game <= completed)
+        analysis_key = (completed, visible_forecasts)
+        if analysis_key != rendered_analysis:
+            render_analysis(completed, forecasts)
+            rendered_analysis = analysis_key
+        if completed != rendered_game:
+            render_indicators(completed)
+            rendered_game = completed
+
+    def render_analysis(completed, forecasts):
+        revealed = match_momentum.loc[match_momentum["game_num"].le(completed)]
+        response = forecasts.get(completed)
+        next_pred = pd.Series(response["prediction"]) if response is not None else None
+
+        # Un pronóstico solo se puntúa después de observar el juego al que se refiere.
+        observed = revealed.set_index("game_num")["N"]
+        evaluated_rows = []
+        for game, result in sorted(forecasts.items()):
+            if game + 1 not in observed.index:
+                continue
+            row = result["prediction"].copy()
+            row["N_observed_next"] = float(observed.loc[game + 1])
+            row["error_abs"] = abs(row["N_pred_next"] - row["N_observed_next"])
+            row["dir_observed"] = "Aumenta" if row["N_observed_next"] > row["N_t"] else "No aumenta"
+            row["dir_correct"] = row["dir_pred"] == row["dir_observed"]
+            evaluated_rows.append(row)
+        evaluated = pd.DataFrame(evaluated_rows)
+        crossings = momentum_crossings(observed).rename("direction").reset_index()
+
+        with chart_slot.container():
+            visible = [column for column, show in [("N", show_n), ("M_A", show_a),
+                                                   ("M_B", show_b)] if show]
+            momentum_chart(revealed, evaluated, next_pred, total_games, completed,
+                           selected_match, visible, smooth_window, show_predictions, full_match_chart,
+                           (_short_name(p1_name), _short_name(p2_name)), theme)
+        last_game = int(revealed.iloc[-1]["game_num"]) if not revealed.empty else 0
+        last_points = points.loc[points["Gm#"].eq(last_game)]
+        with readout_slot.container():
+            match_readout(revealed, last_points, response, crossings, p1_name, p2_name, theme)
+        with history_slot.container():
+            historial(evaluated)
+
+    def render_indicators(completed):
+        revealed = match_momentum.loc[match_momentum["game_num"].le(completed)]
+        last_game = int(revealed.iloc[-1]["game_num"]) if not revealed.empty else 0
+        recorded = points.loc[points["Gm#"].le(last_game)]
+        indicators_a = player_indicators(recorded, p1_name, p2_name)
+        indicators_b = player_indicators(recorded, p2_name, p1_name)
+
+        with radar_slot.container():
+            radar_panel(last_game, p1_name, p2_name, indicators_a, indicators_b, theme)
+        if last_game:
+            with comparison_slot.container():
+                comparison_panel(last_game, p1_name, p2_name, indicators_a, indicators_b, theme)
+        else:
+            comparison_slot.empty()
+
+    with replay_area:
+        render_replay()
+
 
 if __name__ == "__main__":
     main()

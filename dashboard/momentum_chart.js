@@ -2,6 +2,9 @@ const NS = "http://www.w3.org/2000/svg";
 
 export default function render({ parentElement, data }) {
     const svg = parentElement.querySelector("svg");
+    const fingerprint = JSON.stringify(data);
+    if (svg.dataset.rendered === fingerprint) return;
+    svg.dataset.rendered = fingerprint;
     const previous = Number(svg.dataset.completed || 0);
     const animate = svg.dataset.match === data.match
         && data.completed === previous + 1
