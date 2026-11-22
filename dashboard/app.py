@@ -459,74 +459,8 @@ def main() -> None:
         state.live_playing = not state.live_playing
         state.last_tick = time.monotonic()
 
-    replay_area = st.container()
-    chart_col, summary_col = st.columns([1.85, 1])
-    with chart_col:
-        st.markdown("**Momentum y pronóstico**")
-        st.caption(f"Por encima de cero favorece a {p1_name}. Por debajo de cero favorece a "
-                   f"{p2_name}. La línea discontinua muestra el valor que R4 estima para el próximo juego.")
-        chart_slot = st.empty()
-        legend = [
-            (theme.OBSERVED, "Observado", show_n, "solid"),
-            (theme.PLAYER_A, p1_name, show_a, "solid"),
-            (theme.PLAYER_B, p2_name, show_b, "solid"),
-            (theme.PAST, "Valores previstos por R4", show_predictions, "dashed"),
-            (theme.FORECAST, "Próximo juego · R4", show_predictions, "dashed"),
-        ]
-        st.html(
-            f'<div style="display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;color:{theme.TEXT}">'
-            + "".join(
-                f'<span><i aria-hidden="true" style="display:inline-block;width:16px;'
-                f'border-top:3px {style} {color};vertical-align:middle;margin-right:5px"></i>{escape(label)}</span>'
-                for color, label, enabled, style in legend if enabled
-            )
-            + "</div>"
-        )
-        comparison_slot = st.empty()
-        st.markdown("**Análisis del partido**")
-        with st.expander("Historial de pronósticos"):
-            history_slot = st.empty()
-        with st.expander("Indicadores de los modelos (R4 y R5)"):
-            r4 = metrics["r4"]
-            r5 = metrics["r5"]
-            reg = r4["metrics"]
-            st.dataframe(
-                pd.DataFrame([
-                    [f"R4 · {r4['model']}", "N(t+1)", f"MAE {reg['test_mae']:.4f}",
-                     f"RMSE {reg['test_rmse']:.4f}", f"R² {reg['test_r2']:.4f}"],
-                    ["R5 · XGBoost GridSearch", "Dirección del cambio",
-                     f"Precisión {r5['precision']:.4f}", f"F1 {r5['f1']:.4f}",
-                     f"AUC-ROC {r5['roc_auc']:.4f}"],
-                ], columns=["Modelo", "Salida", "Métrica 1", "Métrica 2", "Métrica 3"]),
-                width="stretch", hide_index=True,
-            )
-            st.caption(
-                "Metricas obtenidas en la evaluacion temporal documentada en R4 y R5 "
-                "(train < 2023, test >= 2023)."
-            )
-            if int(catalog[catalog["match_id"] == selected_match]["year"].iloc[0]) < TRAIN_CUTOFF_YEAR:
-                st.markdown(
-                    f'<div style="background:#FEE2E2;border-left:2px solid #EF4444;padding:10px 14px;'
-                    f'border-radius:6px;color:#7F1D1D;font-family:{palette.FONT};font-size:12px">'
-                    "<b>Atencion.</b> Este partido es anterior a 2023 y forma parte del periodo de "
-                    "entrenamiento de R4 y R5. Las predicciones son in-sample y pueden mostrar un "
-                    "desempeno optimista. Para una evaluacion out-of-sample, active el filtro de "
-                    "partidos de 2023 en adelante.</div>",
-                    unsafe_allow_html=True,
-                )
-    with summary_col:
-        st.markdown("**Lectura del partido**")
-        status_slot = st.empty()
-        readout_slot = st.empty()
-        radar_slot = st.empty()
-
-    rendered_game = None
-    rendered_analysis = None
-    rendered_status = None
-
     @st.fragment(run_every=speed)
     def render_replay() -> None:
-        nonlocal rendered_game, rendered_analysis, rendered_status
         state = st.session_state
         point = state.live_point
         if state.live_playing and time.monotonic() - state.last_tick >= speed * 0.9:
@@ -576,28 +510,9 @@ def main() -> None:
         if completed in errors:
             replay_col.button("Reintentar pronóstico", on_click=errors.pop, args=(completed,))
 
-        status = errors.get(completed, "")
-        if completed in pending:
-            status = f"Calculando el pronóstico tras el juego {completed}…"
-        if status != rendered_status:
-            status_slot.html(f'<div style="min-height:1rem;color:{theme.MUTED};font-size:0.75rem" '
-                             f'role="status">{escape(status)}</div>')
-            rendered_status = status
 
-        visible_forecasts = tuple(game for game in forecasts if game <= completed)
-        analysis_key = (completed, visible_forecasts)
-        if analysis_key != rendered_analysis:
-            render_analysis(completed, forecasts)
-            rendered_analysis = analysis_key
-        if completed != rendered_game:
-            render_indicators(completed)
-            rendered_game = completed
-
-    def render_analysis(completed, forecasts):
+    def collect_analysis(completed, forecasts):
         revealed = match_momentum.loc[match_momentum["game_num"].le(completed)]
-        response = forecasts.get(completed)
-        next_pred = pd.Series(response["prediction"]) if response is not None else None
-
         # Un pronóstico solo se puntúa después de observar el juego al que se refiere.
         observed = revealed.set_index("game_num")["N"]
         evaluated_rows = []
@@ -613,36 +528,115 @@ def main() -> None:
         evaluated = pd.DataFrame(evaluated_rows)
         crossings = momentum_crossings(observed).rename("direction").reset_index()
 
-        with chart_slot.container():
-            visible = [column for column, show in [("N", show_n), ("M_A", show_a),
-                                                   ("M_B", show_b)] if show]
-            momentum_chart(revealed, evaluated, next_pred, total_games, completed,
-                           selected_match, visible, smooth_window, show_predictions, full_match_chart,
-                           (_short_name(p1_name), _short_name(p2_name)), theme)
-        last_game = int(revealed.iloc[-1]["game_num"]) if not revealed.empty else 0
-        last_points = points.loc[points["Gm#"].eq(last_game)]
-        with readout_slot.container():
-            match_readout(revealed, last_points, response, crossings, p1_name, p2_name, theme)
-        with history_slot.container():
-            historial(evaluated)
+        return revealed, evaluated, crossings
 
-    def render_indicators(completed):
+    def collect_indicators(completed):
         revealed = match_momentum.loc[match_momentum["game_num"].le(completed)]
         last_game = int(revealed.iloc[-1]["game_num"]) if not revealed.empty else 0
         recorded = points.loc[points["Gm#"].le(last_game)]
         indicators_a = player_indicators(recorded, p1_name, p2_name)
         indicators_b = player_indicators(recorded, p2_name, p1_name)
 
-        with radar_slot.container():
-            radar_panel(last_game, p1_name, p2_name, indicators_a, indicators_b, theme)
-        if last_game:
-            with comparison_slot.container():
-                comparison_panel(last_game, p1_name, p2_name, indicators_a, indicators_b, theme)
-        else:
-            comparison_slot.empty()
+        return last_game, recorded, indicators_a, indicators_b
 
-    with replay_area:
-        render_replay()
+    analysis_key = None
+    analysis = None
+    indicators_game = None
+    indicators = None
+
+    @st.fragment(run_every=max(0.4, min(speed, 1.0)))
+    def render_match_analysis() -> None:
+        nonlocal analysis_key, analysis, indicators_game, indicators
+        completed = resolve_live_state(points, st.session_state.live_point)["completed"]
+        forecasts = st.session_state.game_forecasts
+        visible_forecasts = tuple(game for game in forecasts if game <= completed)
+        current_key = (completed, visible_forecasts)
+        if current_key != analysis_key:
+            analysis = collect_analysis(completed, forecasts)
+            analysis_key = current_key
+        if completed != indicators_game:
+            indicators = collect_indicators(completed)
+            indicators_game = completed
+        revealed, evaluated, crossings = analysis
+        last_game, recorded, indicators_a, indicators_b = indicators
+        response = forecasts.get(completed)
+        next_pred = pd.Series(response["prediction"]) if response is not None else None
+
+        chart_col, summary_col = st.columns([1.85, 1])
+        with chart_col:
+            st.markdown("**Momentum y pronóstico**")
+            st.caption(f"Por encima de cero favorece a {p1_name}. Por debajo de cero favorece a "
+                       f"{p2_name}. La línea discontinua muestra el valor que R4 estima para el próximo juego.")
+            visible = [column for column, show in [("N", show_n), ("M_A", show_a),
+                                                   ("M_B", show_b)] if show]
+            momentum_chart(revealed, evaluated, next_pred, total_games, completed,
+                           selected_match, visible, smooth_window, show_predictions, full_match_chart,
+                           (_short_name(p1_name), _short_name(p2_name)), theme)
+            legend = [
+                (theme.OBSERVED, "Observado", show_n, "solid"),
+                (theme.PLAYER_A, p1_name, show_a, "solid"),
+                (theme.PLAYER_B, p2_name, show_b, "solid"),
+                (theme.PAST, "Valores previstos por R4", show_predictions, "dashed"),
+                (theme.FORECAST, "Próximo juego · R4", show_predictions, "dashed"),
+            ]
+            st.html(
+                f'<div style="display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;color:{theme.TEXT}">'
+                + "".join(
+                    f'<span><i aria-hidden="true" style="display:inline-block;width:16px;'
+                    f'border-top:3px {style} {color};vertical-align:middle;margin-right:5px"></i>{escape(label)}</span>'
+                    for color, label, enabled, style in legend if enabled
+                )
+                + "</div>"
+            )
+            if last_game:
+                comparison_panel(last_game, p1_name, p2_name, indicators_a, indicators_b, theme)
+            st.markdown("**Análisis del partido**")
+            with st.expander("Historial de pronósticos"):
+                historial(evaluated)
+
+        with summary_col:
+            st.markdown("**Lectura del partido**")
+            status = st.session_state.forecast_errors.get(completed, "")
+            if completed in st.session_state.pending_forecasts:
+                status = f"Calculando el pronóstico tras el juego {completed}…"
+            st.html(f'<div style="min-height:1rem;color:{theme.MUTED};font-size:0.75rem" '
+                    f'role="status">{escape(status)}</div>')
+            last_points = recorded.loc[recorded["Gm#"].eq(last_game)]
+            match_readout(revealed, last_points, response, crossings, p1_name, p2_name, theme)
+            radar_panel(last_game, p1_name, p2_name, indicators_a, indicators_b, theme)
+
+    render_replay()
+    render_match_analysis()
+    metrics_col, _ = st.columns([1.85, 1])
+    with metrics_col:
+        with st.expander("Indicadores de los modelos (R4 y R5)"):
+            r4 = metrics["r4"]
+            r5 = metrics["r5"]
+            reg = r4["metrics"]
+            st.dataframe(
+                pd.DataFrame([
+                    [f"R4 · {r4['model']}", "N(t+1)", f"MAE {reg['test_mae']:.4f}",
+                     f"RMSE {reg['test_rmse']:.4f}", f"R² {reg['test_r2']:.4f}"],
+                    ["R5 · XGBoost GridSearch", "Dirección del cambio",
+                     f"Precisión {r5['precision']:.4f}", f"F1 {r5['f1']:.4f}",
+                     f"AUC-ROC {r5['roc_auc']:.4f}"],
+                ], columns=["Modelo", "Salida", "Métrica 1", "Métrica 2", "Métrica 3"]),
+                width="stretch", hide_index=True,
+            )
+            st.caption(
+                "Metricas obtenidas en la evaluacion temporal documentada en R4 y R5 "
+                "(train < 2023, test >= 2023)."
+            )
+            if int(catalog[catalog["match_id"] == selected_match]["year"].iloc[0]) < TRAIN_CUTOFF_YEAR:
+                st.markdown(
+                    f'<div style="background:#FEE2E2;border-left:2px solid #EF4444;padding:10px 14px;'
+                    f'border-radius:6px;color:#7F1D1D;font-family:{palette.FONT};font-size:12px">'
+                    "<b>Atencion.</b> Este partido es anterior a 2023 y forma parte del periodo de "
+                    "entrenamiento de R4 y R5. Las predicciones son in-sample y pueden mostrar un "
+                    "desempeno optimista. Para una evaluacion out-of-sample, active el filtro de "
+                    "partidos de 2023 en adelante.</div>",
+                    unsafe_allow_html=True,
+                )
 
 
 if __name__ == "__main__":
