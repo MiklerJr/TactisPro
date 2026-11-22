@@ -34,11 +34,6 @@ warnings.filterwarnings("ignore")
 
 import pandas as pd
 import numpy as np
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import RFE
@@ -56,7 +51,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 
 from xgboost import XGBClassifier
-import shap
 
 from config import (
     PROCESSED_DIR,
@@ -231,6 +225,11 @@ def run_rfe(X_train, y_train, X_test, y_test, n_features: int):
 
 
 def plot_comparison(metrics_dict: dict, out_path: Path):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
     keys = list(metrics_dict.keys())
     precision = [metrics_dict[k]["precision"] for k in keys]
     recall = [metrics_dict[k]["recall"] for k in keys]
@@ -279,6 +278,12 @@ def plot_comparison(metrics_dict: dict, out_path: Path):
 
 def shap_analysis(model, X_sample, feat_cols, out_path: Path, max_features: int = 15):
     """Genera SHAP summary plot (bar)."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import shap
+
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_sample)
     if isinstance(shap_values, list):

@@ -8,11 +8,13 @@ import numpy as np
 import pandas as pd
 from xgboost import DMatrix
 
-from config import GAME_FEATURES_RESOLVED_DATASET, MOMENTUM_DATASET, PROCESSED_DIR
+from config import GAME_FEATURES_RESOLVED_DATASET, MOMENTUM_DATASET
 from src.momentum.classification import add_momentum_features
 from src.momentum.classification import build_dataset as build_classification_dataset
+from src.momentum.crossing_model import HISTORY, INPUTS
 from src.momentum.crossings import momentum_crossings
 from src.momentum.regression import build_dataset as build_regression_dataset
+from .crossing import forecast_crossing, load_weights
 from .paths import MODEL_BUNDLE
 
 
@@ -58,15 +60,7 @@ class ReplayInference:
         if not MODEL_BUNDLE.is_file():
             raise FileNotFoundError(f"{MODEL_BUNDLE}. Ejecuta python -m backend.train")
         self.models = joblib.load(MODEL_BUNDLE)
-        self.gru = None
-        if (PROCESSED_DIR / "r6_gru.pt").is_file():
-            # Load the XGBoost bundle before importing PyTorch on macOS.
-            import torch
-            from src.momentum.crossing_forecast import CrossingGRU, MODEL_PATH
-
-            self.gru = CrossingGRU()
-            self.gru.load_state_dict(torch.load(MODEL_PATH, map_location="cpu", weights_only=True))
-            self.gru.eval()
+        self.gru = self.models["r6_weights"] if "r6_weights" in self.models else load_weights()
 
     def metrics(self) -> dict:
         return {
@@ -79,8 +73,6 @@ class ReplayInference:
         """Ejecuta la inferencia para un juego cerrado con entradas hasta ese juego."""
         if game_num < 1:
             raise KeyError((match_id, game_num))
-        from src.momentum.crossing_forecast import HISTORY, INPUTS
-
         started = perf_counter()
         momentum = pd.read_parquet(
             MOMENTUM_DATASET, columns=["game_num", *INPUTS],
@@ -114,11 +106,8 @@ class ReplayInference:
         explained = perf_counter()
         horizon = None
         if self.gru is not None and momentum.index.tolist() == list(range(game_num - HISTORY + 1, game_num + 1)):
-            import torch
-
             values = momentum[INPUTS].to_numpy(dtype=np.float32)
-            with torch.inference_mode():
-                horizon = float(self.gru(torch.from_numpy(values).unsqueeze(0)).item())
+            horizon = float(forecast_crossing(values[None, :, :], self.gru)[0])
 
         if timings is not None:
             timings.update(
@@ -152,15 +141,10 @@ class ReplayInference:
         shap = pd.DataFrame(shap_values[:, :-1], columns=columns)
         shap.insert(0, "game_num", clf["game_num"].to_numpy())
 
-        if self.gru is not None:
-            import torch
-            from src.momentum.crossing_forecast import HISTORY, INPUTS
-
         if self.gru is not None and len(momentum) >= HISTORY:
             values = momentum[INPUTS].to_numpy(dtype=np.float32)
             windows = np.stack([values[end-HISTORY:end] for end in range(HISTORY, len(values)+1)])
-            with torch.inference_mode():
-                forecasts = self.gru(torch.from_numpy(windows)).numpy()
+            forecasts = forecast_crossing(windows, self.gru)
             horizons = pd.Series(forecasts, index=momentum.index[HISTORY-1:])
             predictions["games_to_crossing"] = predictions["game_num"].map(horizons)
         else:

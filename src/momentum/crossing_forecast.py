@@ -14,9 +14,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from config import GAMES_DATASET, MOMENTUM_DATASET, PROCESSED_DIR, PROJECT_ROOT, RANDOM_SEED
 from .crossings import momentum_crossings
 
-HISTORY = 5
-INPUTS = ["M_A", "M_B", "N"]
-MODEL_PATH = PROCESSED_DIR / "r6_gru.pt"
+from .crossing_model import HISTORY, INPUTS, MODEL_PATH
 
 
 class CrossingGRU(nn.Module):

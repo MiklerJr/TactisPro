@@ -28,11 +28,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import pandas as pd
 import numpy as np
 import json
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.impute import SimpleImputer
@@ -216,6 +211,11 @@ def evaluate_svr(X_train, y_train, X_test, y_test):
 
 def plot_comparison(results: dict[str, dict[str, dict]], out_path: Path) -> None:
     """Grafica MAE y R^2 por modelo y target."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
     targets = list(results[list(results.keys())[0]].keys())
     models = list(results.keys())
 

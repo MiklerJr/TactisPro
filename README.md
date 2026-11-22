@@ -17,7 +17,7 @@ python -m pip install -r requirements.txt
 python -m backend.train
 ```
 
-`backend.train` ajusta R4 y R5 con las configuraciones registradas en el experimento y guarda el paquete local de modelos. Basta ejecutarlo una vez, o después de regenerar los datos o cambiar los resultados de selección. El servicio también carga la GRU de R6 incluida en los datos procesados.
+`backend.train` ajusta R4 y R5 con las configuraciones registradas en el experimento y guarda el paquete local de modelos. Basta ejecutarlo una vez, o después de regenerar los datos o cambiar los resultados de selección. El comando también exporta los pesos de la GRU de R6 al paquete de modelos. El servicio usa esos pesos con NumPy para evitar cargar PyTorch en el proceso de inferencia.
 
 Inicia el backend en una terminal:
 

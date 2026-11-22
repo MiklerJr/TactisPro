@@ -1,4 +1,4 @@
-"""Entrena y exporta los modelos R4 y R5 para el servicio de inferencia."""
+"""Entrena R4 y R5 y exporta los pesos de R6 para el servicio de inferencia."""
 
 import json
 from pathlib import Path
@@ -13,6 +13,7 @@ from sklearn.svm import SVR
 from xgboost import XGBClassifier
 
 from config import PROCESSED_DIR, RANDOM_SEED
+from .crossing import load_weights
 from .paths import MODEL_BUNDLE
 from src.momentum.classification import (
     build_dataset as build_classification_dataset,
@@ -71,6 +72,7 @@ def train_models() -> dict:
 
 def main() -> None:
     models = train_models()
+    models["r6_weights"] = load_weights()
     with NamedTemporaryFile(dir=MODEL_BUNDLE.parent, suffix=".joblib", delete=False) as file:
         temporary = Path(file.name)
     try:
