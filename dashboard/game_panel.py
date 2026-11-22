@@ -199,8 +199,6 @@ def _render_radars(panels: str, label: str, theme: palette.Palette) -> None:
 def radar_panel(game_num: int, p1: str, p2: str, a: IndicatorCounts, b: IndicatorCounts,
                 theme: palette.Palette) -> None:
     label = f"Radares acumulados hasta el juego {game_num}" if game_num else "Radares por jugador"
-    st.markdown(f"**{label}**")
-    if not game_num:
-        st.caption("Los indicadores aparecen al cerrar el primer juego.")
+    st.markdown("**Radares por jugador**")
     panels = _radar(a, p1, theme.PLAYER_A, theme) + _radar(b, p2, theme.PLAYER_B, theme)
     _render_radars(panels, label, theme)

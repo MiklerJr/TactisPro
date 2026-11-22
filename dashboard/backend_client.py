@@ -1,9 +1,10 @@
 """Cliente HTTP del backend de predicción."""
 
 from concurrent.futures import Future, ThreadPoolExecutor
+from http.client import HTTPException
 import json
 import os
-from urllib.error import HTTPError, URLError
+from urllib.error import HTTPError
 from urllib.parse import quote
 from urllib.request import urlopen
 
@@ -18,7 +19,9 @@ def _get(path: str) -> dict:
             return json.load(response)
     except HTTPError as exc:
         raise RuntimeError(f"El backend respondió con HTTP {exc.code}.") from exc
-    except (URLError, TimeoutError) as exc:
+    except ValueError as exc:
+        raise RuntimeError("El backend devolvió una respuesta inválida.") from exc
+    except (OSError, HTTPException) as exc:
         raise RuntimeError(f"No se pudo conectar con el backend en {BACKEND_URL}.") from exc
 
 

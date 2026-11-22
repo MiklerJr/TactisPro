@@ -37,7 +37,7 @@ def _observed(history, points, p1, p2, theme):
                         for c in (counts_a, counts_b))
     rows.append(f'<tr><td>{serve_a}</td><th scope="row">Primer saque dentro</th><td>{serve_b}</td></tr>')
     return f"""
-      <section class="r8-read-card">
+      <section class="r8-read-card r8-read-observed">
         <small>Observado · Juego {game}</small>
         <div class="r8-read-line"><strong>{escape(lead)}</strong><span>Índice {_number(net, signed=True)}</span></div>
         <div class="r8-read-line"><span>{escape(movement)}</span>{delta}</div>
@@ -51,12 +51,26 @@ def _observed(history, points, p1, p2, theme):
     """
 
 
-def _forecast(response, p1, p2):
+def _forecast(response, p1, p2, completed, total_games, error):
     if response is None:
-        return ""
+        title = "Pronóstico"
+        if not completed:
+            message = "Disponible al cerrar el primer juego."
+        elif completed >= total_games:
+            message = "El partido terminó."
+        else:
+            title = f"Pronóstico · Juego {completed + 1}"
+            message = "Pronóstico no disponible." if error else "Calculando pronóstico…"
+        return f"""
+          <section class="r8-read-card r8-read-forecast" aria-live="polite">
+            <small>{title}</small>
+            <div class="r8-read-forecast-message" title="{escape(error)}">{message}</div>
+          </section>
+        """
     prediction = response["prediction"]
     probability = float(prediction["prob_up"])
     increasing = probability >= 0.5
+    trend = "up" if increasing else "not-up"
     direction = (
         f"{p1} mejoraría su rendimiento relativo"
         if increasing
@@ -80,9 +94,9 @@ def _forecast(response, p1, p2):
                     f'Posible cruce en <b>{horizon:.1f}'.replace(".", ",") + ' juegos</b></span>')
     projected = _number(prediction["N_pred_next"], signed=True)
     return f"""
-      <section class="r8-read-card r8-read-forecast">
+      <section class="r8-read-card r8-read-forecast r8-read-forecast-{trend}" aria-live="polite">
         <small>PRONÓSTICO · JUEGO {int(prediction["game_num"]) + 1}</small>
-        <div class="r8-read-line"><strong>{escape(direction)}</strong>
+        <div class="r8-read-line"><strong class="r8-read-direction">{escape(direction)}</strong>
           <strong class="r8-read-prob" aria-label="Probabilidad estimada {probability_text}">{probability_text}</strong></div>
         <div class="r8-read-line r8-read-numbers"><span>Índice previsto · R4 <b>{projected}</b></span>{crossing}</div>
         {signal_block}
@@ -90,19 +104,18 @@ def _forecast(response, p1, p2):
     """
 
 
-def match_readout(history, points, response, crossings, p1: str, p2: str, theme: Palette) -> None:
-    if history.empty:
-        st.caption("La lectura aparece al cerrar el primer juego.")
-        return
+def match_readout(history, points, response, crossings, p1: str, p2: str, theme: Palette,
+                  *, completed: int, total_games: int, error: str = "") -> None:
+    observed = (
+        '<section class="r8-read-card r8-read-observed"><small>La lectura aparece al cerrar el primer juego.</small></section>'
+        if history.empty else _observed(history, points, p1, p2, theme)
+    )
     alert = ""
     if not crossings.empty:
         crossing = crossings.iloc[-1]
         player = p1 if crossing["direction"] > 0 else p2
         game = int(crossing["game_num"])
-        alert = (
-            f'<div class="r8-read-alert" role="status">↔ Último cruce · Juego {game} · '
-            f'A favor de {escape(player)}</div>'
-        )
+        alert = f"↔ Último cruce · Juego {game} · A favor de {escape(player)}"
     st.html(f"""
       <style>
         .r8-read-stack {{ display:grid; gap:6px; color:{theme.TEXT}; font:12px {FONT}; }}
@@ -117,18 +130,29 @@ def match_readout(history, points, response, crossings, p1: str, p2: str, theme:
         .r8-read-card table {{ width:100%; table-layout:fixed; text-align:center; border-collapse:collapse; font-size:11px; }}
         .r8-read-card table th,.r8-read-card table td {{ padding:3px 2px; border-top:1px solid {theme.BORDER}; }}
         .r8-read-card tbody th {{ color:{theme.MUTED}; font-weight:500; }}
-        .r8-read-prob {{ color:{theme.FORECAST}; white-space:nowrap; }}
+        .r8-read-observed {{ box-sizing:border-box; block-size:9rem; align-content:start; overflow:auto; }}
+        .r8-read-forecast {{
+          box-sizing:border-box; block-size:8.5rem; grid-template-rows:auto auto auto minmax(0,1fr);
+          border-inline-start:3px solid var(--forecast-accent,{theme.BORDER});
+        }}
+        .r8-read-forecast-up {{ --forecast-accent:{theme.FORECAST_UP}; }}
+        .r8-read-forecast-not-up {{ --forecast-accent:{theme.FORECAST_NOT_UP}; }}
+        .r8-read-direction, .r8-read-prob {{ color:var(--forecast-accent); }}
+        .r8-read-prob {{ white-space:nowrap; }}
+        .r8-read-forecast-message {{ color:{theme.MUTED}; }}
         .r8-read-numbers {{ font-size:10px; }}
-        .r8-read-signals {{ padding-top:4px; border-top:1px solid {theme.BORDER}; }}
+        .r8-read-signals {{ padding-top:4px; border-top:1px solid {theme.BORDER}; overflow:auto; }}
         .r8-read-signals ul {{ display:flex; flex-wrap:wrap; gap:4px; list-style:none; padding:0; margin:3px 0 0; }}
         .r8-read-signals li {{
           border:1px solid {theme.BORDER}; border-radius:5px; padding:2px 5px; color:{theme.TEXT}; font-size:10px;
         }}
-        .r8-read-alert {{ padding:4px 7px; border-left:2px solid {theme.FORECAST}; color:{theme.FORECAST}; font-size:11px; }}
+        .r8-read-alert {{ padding:4px 7px; border-left:2px solid {theme.FORECAST}; color:{theme.FORECAST}; font-size:11px; block-size:1.6rem; box-sizing:border-box;
+          white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }}
+        .r8-read-alert:empty {{ border-color:transparent; }}
       </style>
       <div class="r8-read-stack">
-        {_observed(history, points, p1, p2, theme)}
-        {_forecast(response, p1, p2)}
-        {alert}
+        {observed}
+        {_forecast(response, p1, p2, completed, total_games, error)}
+        <div class="r8-read-alert" role="status">{alert}</div>
       </div>
     """)

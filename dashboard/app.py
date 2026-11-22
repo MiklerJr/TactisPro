@@ -288,7 +288,7 @@ def scoreboard(live: dict, p1_name: str, p2_name: str, match_row: pd.Series,
         if momentum_row is not None:
             momentum = float(momentum_row["M_A" if i == 1 else "M_B"])
             meta = " · ".join(filter(None, (meta, f"Momentum {momentum:.2f}".replace(".", ","))))
-        detail = f'<small class="replay-player-meta">{escape(meta)}</small>' if meta else ""
+        detail = f'<small class="replay-player-meta" title="{escape(meta)}">{escape(meta)}</small>'
         rows.append(
             f'<tr><td style="color:{color};text-align:left;font-weight:650">'
             f'{escape(_short_name(name))}{serve}{detail}</td>'
@@ -300,17 +300,18 @@ def scoreboard(live: dict, p1_name: str, p2_name: str, match_row: pd.Series,
     st.html(f"""
         <section style="background:{theme.SURFACE};border:1px solid {theme.BORDER};border-radius:12px;padding:3px 11px">
           <style>
-            .replay-score {{width:100%;font-size:12px;color:{theme.TEXT};border-collapse:collapse}}
+            .replay-score {{width:100%;table-layout:fixed;font-size:12px;color:{theme.TEXT};border-collapse:collapse}}
             .replay-score th,.replay-score td {{text-align:right;padding:1px 8px}}
             .replay-score th {{color:{theme.MUTED};font-size:10px;font-weight:550}}
-            .replay-player-meta {{display:block;color:{theme.MUTED};font-size:10px;font-weight:450;line-height:1.2;padding-bottom:2px}}
+            .replay-player-meta {{display:block;color:{theme.MUTED};font-size:10px;font-weight:450;line-height:1.2;min-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+            .replay-flags {{display:block;height:15px;line-height:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{theme.PLAYER_B}}}
             .replay-score tbody tr + tr {{border-top:1px solid {theme.BORDER}}}
           </style>
           <table class="replay-score" aria-label="Marcador del partido">
-            <thead><tr><th style="text-align:left">Jugador</th><th>Sets</th><th>Juegos</th><th>Punto</th></tr></thead>
+            <thead><tr><th style="text-align:left;width:52%">Jugador</th><th>Sets</th><th>Juegos</th><th>Punto</th></tr></thead>
             <tbody>{"".join(rows)}</tbody>
           </table>
-          {f'<small style="color:{theme.PLAYER_B}">{escape(flags)}</small>' if flags else ''}
+          <small class="replay-flags" title="{escape(flags)}">{escape(flags)}</small>
         </section>
     """)
 
@@ -448,11 +449,12 @@ def main() -> None:
         for future in st.session_state.pending_forecasts.values():
             future.cancel()
         st.session_state.update(game_forecasts={}, pending_forecasts={}, forecast_errors={})
+        st.session_state.live_playing = False
         seek(1)
 
     def seek(point: int) -> None:
         st.session_state.live_point = point
-        st.session_state.live_playing = False
+        st.session_state.last_tick = time.monotonic()
 
     def toggle_playback() -> None:
         state = st.session_state
@@ -505,10 +507,11 @@ def main() -> None:
                            disabled=point >= total_points, width="stretch")
         state.replay_cursor = point
         replay_col.slider("Punto visible", 1, total_points, key="replay_cursor",
-                           on_change=lambda: seek(state.replay_cursor))
+                           disabled=state.live_playing, on_change=lambda: seek(state.replay_cursor))
 
+        render_match_analysis(completed)
         if completed in errors:
-            replay_col.button("Reintentar pronóstico", on_click=errors.pop, args=(completed,))
+            st.button("Reintentar pronóstico", on_click=errors.pop, args=(completed,))
 
 
     def collect_analysis(completed, forecasts):
@@ -544,10 +547,8 @@ def main() -> None:
     indicators_game = None
     indicators = None
 
-    @st.fragment(run_every=max(0.4, min(speed, 1.0)))
-    def render_match_analysis() -> None:
+    def render_match_analysis(completed: int) -> None:
         nonlocal analysis_key, analysis, indicators_game, indicators
-        completed = resolve_live_state(points, st.session_state.live_point)["completed"]
         forecasts = st.session_state.game_forecasts
         visible_forecasts = tuple(game for game in forecasts if game <= completed)
         current_key = (completed, visible_forecasts)
@@ -596,17 +597,15 @@ def main() -> None:
 
         with summary_col:
             st.markdown("**Lectura del partido**")
-            status = st.session_state.forecast_errors.get(completed, "")
-            if completed in st.session_state.pending_forecasts:
-                status = f"Calculando el pronóstico tras el juego {completed}…"
-            st.html(f'<div style="min-height:1rem;color:{theme.MUTED};font-size:0.75rem" '
-                    f'role="status">{escape(status)}</div>')
             last_points = recorded.loc[recorded["Gm#"].eq(last_game)]
-            match_readout(revealed, last_points, response, crossings, p1_name, p2_name, theme)
+            match_readout(
+                revealed, last_points, response, crossings, p1_name, p2_name, theme,
+                completed=completed, total_games=total_games,
+                error=st.session_state.forecast_errors.get(completed, ""),
+            )
             radar_panel(last_game, p1_name, p2_name, indicators_a, indicators_b, theme)
 
     render_replay()
-    render_match_analysis()
     metrics_col, _ = st.columns([1.85, 1])
     with metrics_col:
         with st.expander("Indicadores de los modelos (R4 y R5)"):
