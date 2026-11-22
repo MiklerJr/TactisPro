@@ -25,7 +25,7 @@ def _observed(history, points, p1, p2, theme):
         change = net - float(history.iloc[-2]["N"])
         movement = "Sin cambio apreciable"
         if abs(change) >= 0.005:
-            movement = f"{p1 if change > 0 else p2} gana terreno"
+            movement = f"Mejora relativa de {p1 if change > 0 else p2}"
             delta = f'<strong>{_number(abs(change), signed=True)}</strong>'
     counts_a = player_indicators(points, p1, p2)
     counts_b = player_indicators(points, p2, p1)
@@ -57,7 +57,11 @@ def _forecast(response, p1, p2):
     prediction = response["prediction"]
     probability = float(prediction["prob_up"])
     increasing = probability >= 0.5
-    direction = f"{p1} gana terreno" if increasing else f"{p1} no gana terreno"
+    direction = (
+        f"{p1} mejoraría su rendimiento relativo"
+        if increasing
+        else f"{p1} mantendría o bajaría su rendimiento relativo"
+    )
     probability_text = f"{(probability if increasing else 1 - probability):.1%}".replace(".", ",").replace("%", " %")
     contributions = pd.Series(response["contributions"])
     signals = forecast_signals(contributions, p1, p2, increasing)

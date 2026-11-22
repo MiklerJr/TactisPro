@@ -1,5 +1,6 @@
 """Cliente HTTP del backend de predicción."""
 
+from concurrent.futures import Future, ThreadPoolExecutor
 import json
 import os
 from urllib.error import HTTPError, URLError
@@ -28,3 +29,11 @@ def fetch_metrics() -> dict:
 
 def fetch_game(match_id: str, game_num: int) -> dict:
     return _get(f"/matches/{quote(match_id, safe='')}/games/{game_num}")
+
+@st.cache_resource
+def forecast_executor() -> ThreadPoolExecutor:
+    return ThreadPoolExecutor(max_workers=4, thread_name_prefix="forecast")
+
+
+def request_game(match_id: str, game_num: int) -> Future:
+    return forecast_executor().submit(fetch_game, match_id, game_num)

@@ -7,7 +7,7 @@ La aplicacion simula la transmision de un partido en vivo. En un escenario real,
 camaras de vision por computadora generarian los datos punto a punto; en esta
 prueba de concepto los puntos se reproducen desde el dataset historico y llegan
 uno a uno. El marcador se actualiza con cada punto y, al cerrar cada game, el
-sistema entra en pausa para mostrar la prediccion (R4/R5) y el historico.
+sistema solicita la predicción (R4/R5) mientras continúa la reproducción.
 
 Principio metodologico: R4 y R5 fueron entrenados con granularidad de game, por
 lo que la prediccion se actualiza al cerrar cada game, nunca con informacion
@@ -29,7 +29,7 @@ if str(ROOT) not in sys.path:
 from dashboard import palette
 from config import CLEAN_DATASET, GAMES_DATASET, MATCHES_DATASET, MOMENTUM_DATASET
 from dashboard.match_readout import match_readout
-from dashboard.backend_client import fetch_game, fetch_metrics
+from dashboard.backend_client import fetch_metrics, request_game
 from dashboard.game_panel import comparison_panel, player_indicators, radar_panel
 from dashboard.replay import resolve_live_state
 from src.momentum.crossings import momentum_crossings
@@ -355,7 +355,9 @@ def main() -> None:
 
     try:
         momentum, games, identity = load_datasets()
-        metrics = fetch_metrics()
+        if "backend_metrics" not in st.session_state:
+            st.session_state.backend_metrics = fetch_metrics()
+        metrics = st.session_state.backend_metrics
     except Exception as exc:
         st.error(f"No fue posible cargar los datos o conectar con el backend: {exc}")
         st.stop()
@@ -429,9 +431,11 @@ def main() -> None:
     total_points = len(points)
     total_games = int(points["Gm#"].max())
     if st.session_state.get("live_match") != selected_match:
+        for future in st.session_state.get("pending_forecasts", {}).values():
+            future.cancel()
         st.session_state.update(
             live_match=selected_match, live_point=1, replay_cursor=1,
-            live_playing=False, game_forecasts={},
+            live_playing=False, game_forecasts={}, pending_forecasts={}, forecast_errors={},
         )
 
     live = resolve_live_state(points, st.session_state["live_point"])
@@ -443,8 +447,25 @@ def main() -> None:
     match_title = _match_title(match_row) if len(match_row) else selected_match
     timer_running = st.session_state["live_playing"]
 
+    forecasts = st.session_state.game_forecasts
+    pending = st.session_state.setdefault("pending_forecasts", {})
+    errors = st.session_state.setdefault("forecast_errors", {})
+    for game, future in list(pending.items()):
+        if future.done():
+            del pending[game]
+            try:
+                forecasts[game] = future.result()
+            except RuntimeError as exc:
+                errors[game] = str(exc)
+
+    if (0 < completed < total_games and completed not in forecasts
+            and completed not in pending and completed not in errors):
+        pending[completed] = request_game(selected_match, completed)
+
     def restart() -> None:
-        st.session_state.game_forecasts = {}
+        for future in st.session_state.pending_forecasts.values():
+            future.cancel()
+        st.session_state.update(game_forecasts={}, pending_forecasts={}, forecast_errors={})
         seek(1)
 
     def seek(point: int) -> None:
@@ -458,7 +479,7 @@ def main() -> None:
             state.live_point = min(state.live_point + 1, total_points)
         state.last_tick = time.monotonic()
 
-    @st.fragment(run_every=speed if timer_running else None)
+    @st.fragment(run_every=speed if timer_running else 0.5 if pending else None)
     def replay_controls() -> None:
         state = st.session_state
         point = state.live_point
@@ -470,7 +491,8 @@ def main() -> None:
                 state.live_playing = False
 
         current = resolve_live_state(points, point)
-        if current["completed"] != completed or state.live_playing != timer_running:
+        if (current["completed"] != completed or state.live_playing != timer_running
+                or any(future.done() for future in pending.values())):
             st.rerun()
 
         st.caption(f"{match_title} · Juego {current['current_game']} de {total_games}")
@@ -495,12 +517,13 @@ def main() -> None:
     replay_controls()
 
     revealed = match_momentum[match_momentum["game_num"] <= completed]
-    forecasts = st.session_state.setdefault("game_forecasts", {})
-    if 0 < completed < total_games and completed not in forecasts:
-        try:
-            forecasts[completed] = fetch_game(selected_match, completed)
-        except RuntimeError as exc:
-            st.warning(f"Pronóstico del juego {completed} no disponible: {exc}")
+    if completed in pending:
+        st.caption(f"Calculando el pronóstico tras el juego {completed}…")
+    elif completed in errors:
+        st.warning(f"Pronóstico del juego {completed} no disponible. {errors[completed]}")
+        if st.button("Reintentar pronóstico"):
+            del errors[completed]
+            st.rerun()
 
     response = forecasts.get(completed)
     next_pred = pd.Series(response["prediction"]) if response is not None else None
