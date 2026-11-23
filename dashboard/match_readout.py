@@ -130,7 +130,7 @@ def match_readout(history, points, response, crossings, p1: str, p2: str, theme:
         .r8-read-card table {{ width:100%; table-layout:fixed; text-align:center; border-collapse:collapse; font-size:11px; }}
         .r8-read-card table th,.r8-read-card table td {{ padding:3px 2px; border-top:1px solid {theme.BORDER}; }}
         .r8-read-card tbody th {{ color:{theme.MUTED}; font-weight:500; }}
-        .r8-read-observed {{ box-sizing:border-box; block-size:9rem; align-content:start; overflow:auto; }}
+        .r8-read-observed {{ box-sizing:border-box; min-block-size:13rem; align-content:start; }}
         .r8-read-forecast {{
           box-sizing:border-box; block-size:8.5rem; grid-template-rows:auto auto auto minmax(0,1fr);
           border-inline-start:3px solid var(--forecast-accent,{theme.BORDER});
