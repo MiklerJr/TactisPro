@@ -10,6 +10,9 @@ from .game_panel import player_indicators
 from .palette import FONT, Palette
 
 
+VISIBLE_CHANGE = 0.005
+
+
 def _number(value: float, *, signed: bool = False) -> str:
     return format(value, "+.2f" if signed else ".2f").replace(".", ",")
 
@@ -24,7 +27,7 @@ def _observed(history, points, p1, p2, theme):
     if len(history) > 1:
         change = net - float(history.iloc[-2]["N"])
         movement = "Sin cambio apreciable"
-        if abs(change) >= 0.005:
+        if abs(change) >= VISIBLE_CHANGE:
             movement = f"Mejora relativa de {p1 if change > 0 else p2}"
             delta = f'<strong>{_number(abs(change), signed=True)}</strong>'
     counts_a = player_indicators(points, p1, p2)
@@ -69,21 +72,25 @@ def _forecast(response, p1, p2, completed, total_games, error):
         """
     prediction = response["prediction"]
     probability = float(prediction["prob_up"])
-    increasing = probability >= 0.5
-    trend = "up" if increasing else "not-up"
-    direction = (
-        f"{p1} mejoraría su rendimiento relativo"
-        if increasing
-        else f"{p1} mantendría o bajaría su rendimiento relativo"
-    )
-    probability_text = f"{(probability if increasing else 1 - probability):.1%}".replace(".", ",").replace("%", " %")
+    change = float(prediction["N_pred_next"]) - float(prediction["N_t"])
+    if abs(change) < VISIBLE_CHANGE:
+        trend = "stable"
+        direction = f"{p1} mantendría su rendimiento relativo"
+    elif change > 0:
+        trend = "up"
+        direction = f"{p1} mejoraría su rendimiento relativo"
+    else:
+        trend = "down"
+        direction = f"{p1} bajaría su rendimiento relativo"
+
+    probability_text = f"{probability:.1%}".replace(".", ",").replace("%", " %")
     contributions = pd.Series(response["contributions"])
-    signals = forecast_signals(contributions, p1, p2, increasing)
+    signals = forecast_signals(contributions, p1, p2, probability >= 0.5)
     if signals:
         items = "".join(f"<li>{escape(signal)}</li>" for signal in signals)
         signal_block = (
             '<div class="r8-read-signals" title="Factores del pronóstico según el modelo">'
-            f'<small>Señales del modelo</small><ul>{items}</ul></div>'
+            f'<small>Señales de R5</small><ul>{items}</ul></div>'
         )
     else:
         signal_block = '<small class="r8-read-signals">El modelo no destaca una señal clara.</small>'
@@ -96,9 +103,12 @@ def _forecast(response, p1, p2, completed, total_games, error):
     return f"""
       <section class="r8-read-card r8-read-forecast r8-read-forecast-{trend}" aria-live="polite">
         <small>PRONÓSTICO · JUEGO {int(prediction["game_num"]) + 1}</small>
-        <div class="r8-read-line"><strong class="r8-read-direction">{escape(direction)}</strong>
-          <strong class="r8-read-prob" aria-label="Probabilidad estimada {probability_text}">{probability_text}</strong></div>
-        <div class="r8-read-line r8-read-numbers"><span>Índice previsto · R4 <b>{projected}</b></span>{crossing}</div>
+        <div class="r8-read-line"><strong class="r8-read-direction">{escape(direction)}</strong></div>
+        <div class="r8-read-line r8-read-numbers">
+          <span>Índice previsto · R4 <b>{projected}</b></span>
+          <span>Prob. de mejora · R5 <b>{probability_text}</b></span>
+          {crossing}
+        </div>
         {signal_block}
       </section>
     """
@@ -136,9 +146,9 @@ def match_readout(history, points, response, crossings, p1: str, p2: str, theme:
           border-inline-start:3px solid var(--forecast-accent,{theme.BORDER});
         }}
         .r8-read-forecast-up {{ --forecast-accent:{theme.FORECAST_UP}; }}
-        .r8-read-forecast-not-up {{ --forecast-accent:{theme.FORECAST_NOT_UP}; }}
-        .r8-read-direction, .r8-read-prob {{ color:var(--forecast-accent); }}
-        .r8-read-prob {{ white-space:nowrap; }}
+        .r8-read-forecast-stable {{ --forecast-accent:{theme.FORECAST_STABLE}; }}
+        .r8-read-forecast-down {{ --forecast-accent:{theme.FORECAST_DOWN}; }}
+        .r8-read-direction {{ color:var(--forecast-accent); }}
         .r8-read-forecast-message {{ color:{theme.MUTED}; }}
         .r8-read-numbers {{ font-size:10px; }}
         .r8-read-signals {{ padding-top:4px; border-top:1px solid {theme.BORDER}; overflow:auto; }}
