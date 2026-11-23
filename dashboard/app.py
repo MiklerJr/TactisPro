@@ -87,10 +87,11 @@ def dashboard_heading(theme: palette.Palette, light: bool) -> None:
             }}
             [data-testid="stApp"] :is(h1,h2,h3,p,label,summary, [data-testid="stMetricValue"]),
             [data-testid="stHeader"] button {{ color:var(--tactis-text); }}
+            [data-testid="stSidebarCollapseButton"] {{ visibility:visible !important; }}
             :is([data-testid="stSidebarCollapseButton"], [data-testid="stExpandSidebarButton"]),
             :is([data-testid="stSidebarCollapseButton"], [data-testid="stExpandSidebarButton"]) :is(button, span, svg) {{
-              color:#000 !important;
-              -webkit-text-fill-color:#000 !important;
+              color:#595959 !important;
+              -webkit-text-fill-color:#595959 !important;
             }}
             [data-testid="stCaptionContainer"] p {{ color:var(--tactis-muted); }}
             [data-testid^="stBaseButton-"], [data-baseweb="select"] > div,
