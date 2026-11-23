@@ -87,6 +87,10 @@ def dashboard_heading(theme: palette.Palette, light: bool) -> None:
             }}
             [data-testid="stApp"] :is(h1,h2,h3,p,label,summary, [data-testid="stMetricValue"]),
             [data-testid="stHeader"] button {{ color:var(--tactis-text); }}
+            :is([data-testid="stSidebarCollapseButton"], [data-testid="stExpandSidebarButton"]),
+            :is([data-testid="stSidebarCollapseButton"], [data-testid="stExpandSidebarButton"]) :is(button, svg) {{
+              color:var(--tactis-text) !important;
+            }}
             [data-testid="stCaptionContainer"] p {{ color:var(--tactis-muted); }}
             [data-testid^="stBaseButton-"], [data-baseweb="select"] > div,
             [data-testid="stSelectbox"] button {{
