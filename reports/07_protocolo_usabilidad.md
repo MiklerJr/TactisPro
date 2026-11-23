@@ -2,28 +2,28 @@
 
 ## Preparación
 
-Usar la versión de sesión **TactisPro R8-SUS 1.0**, fijada el 22 de noviembre de 2026. El paquete `TactisPro_R8_SUS_1.0.zip` conserva el código, los modelos, los datos de la final y un manifiesto SHA-256. Iniciar el backend y el dashboard desde la carpeta extraída con las instrucciones del paquete. Mantener la misma versión, velocidad y configuración de la gráfica en todas las sesiones.
+Usar el [dashboard de TactisPro](https://tactispro.streamlit.app/) con la semifinal masculina del Australian Open 2026 entre Jannik Sinner y Novak Djokovic, iniciada el 30 de enero. En el selector, elegir el partido de 2026 con 48 juegos. La reproducción tiene 292 puntos registrados. El identificador del partido es `20260130-M-Australian_Open-SF-Jannik_Sinner-Novak_Djokovic`. [Registro oficial del Australian Open](https://ausopen.com/articles/news/legend-lives-on-djokovic-stuns-sinner-returns-australian-open-final)
 
-El escenario es la final masculina del US Open del 7 de septiembre de 2025 entre Jannik Sinner y Carlos Alcaraz. El identificador es `20250907-M-US_Open-F-Jannik_Sinner-Carlos_Alcaraz`. El partido tiene 34 juegos registrados. El paquete abre esta final como único partido disponible. Iniciar cada sesión en el punto 1 y usar la velocidad de 0,8 segundos por punto. Registrar la fecha de sesión, el código y perfil del participante, las tareas completadas, la ayuda prestada y las observaciones.
+Registrar el commit desplegado del dashboard y el identificador del despliegue del backend antes de la primera sesión. Mantener ambos durante la evaluación. Restablecer el punto visible a 1, fijar 0,8 segundos por punto y usar la vista predeterminada de la gráfica. Verificar que el pronóstico del juego 7 cargue antes de la sesión y volver al inicio. Registrar fecha, código y perfil del participante, tareas completadas, ayuda prestada e incidencias. Si un problema técnico impide completar una tarea, anotarlo por separado.
 
 ## Sesión con usuarios representativos
 
-1. Confirmar el partido en el selector. Iniciar la reproducción, pausarla y continuar hasta que cierre un juego.
-2. Detener la reproducción en el punto visible 39, cierre del juego 6. Identificar a quién favorece el índice y explicar qué cambió entre los juegos 5 y 6.
-3. En el mismo cierre, ubicar el pronóstico para el juego 7 y explicar con sus propias palabras qué indica y qué señal lo apoya.
-4. Avanzar al punto visible 49, cierre del juego 8. Ubicar la alerta, indicar el juego en que se produjo y el jugador favorecido, y explicar en qué se diferencia del pronóstico.
+1. Confirmar en el selector la semifinal de 2026. Iniciar la reproducción, pausarla y continuar hasta que cierre un juego.
+2. Pausar y llevar el control **Punto visible** al **39**, cierre del juego 6. Identificar a quién favorece el índice y explicar qué cambió entre los juegos 5 y 6.
+3. En el mismo punto, esperar a que cargue el **pronóstico del juego 7**. Pedir que el participante explique con sus palabras qué indica y mencione una señal de R5.
+4. Con la reproducción en pausa, llevar **Punto visible** al **259**, cierre del juego 43. Ubicar la alerta, indicar a quién favoreció el cruce y explicar la diferencia entre la alerta y el pronóstico.
 
 ### Referencias para quien modera
 
-- Juego 6, punto 39. El índice neto pasó de +0,122 a +0,353 y favorece a Sinner. Para el juego 7, R5 estima una probabilidad de aumento del índice de 57,0 %. Las señales mostradas son la evolución reciente del momentum y la racha de juegos.
-- Juego 8, punto 49. Es el primer cruce confirmado y favorece a Alcaraz. El juego 7 quedó en cero y el juego 8 registró un índice neto de −0,385.
+- **Punto 39, juego 6.** El índice observado baja de −0,80 a −1,00 y sigue favoreciendo a Djokovic. R4 prevé un índice de −0,88 para el juego 7, una mejora relativa de Sinner con el índice todavía a favor de Djokovic. En el despliegue consultado, R5 estima un 51,1 % de probabilidad de mejora. Las señales visibles son «Evolución reciente del momentum» y «Racha de juegos». Confirmar el valor de referencia en el despliegue que se use en la sesión.
+- **Punto 259, juego 43.** El índice pasa de −0,01 a +0,29. Es el primer cruce confirmado y favorece a Sinner. La alerta registra un cruce observado en el juego 43. El pronóstico estima lo que podría ocurrir en el juego 44.
 
-Al terminar, aplicar los diez ítems de la [versión validada en español del SUS](https://humanfactors.jmir.org/2020/4/e21161/) en su orden y con respuestas del 1 al 5. Para cada encuesta completa, restar uno a las respuestas de los ítems impares y restar las respuestas de los ítems pares de cinco. Sumar los valores y multiplicar por 2,5. Reportar el número de encuestas completas, los puntajes individuales anonimizados y la media frente a la meta de 70 puntos. Registrar por separado las encuestas incompletas y las dificultades observadas.
+Al terminar las tareas, aplicar los diez ítems de la [versión validada en español del SUS](https://humanfactors.jmir.org/2020/4/e21161/) en su orden y con respuestas del 1 al 5. Para cada encuesta completa, restar uno a las respuestas de los ítems impares y restar las respuestas de los ítems pares de cinco. Sumar los valores y multiplicar por 2,5. Reportar el número de encuestas completas, los puntajes individuales anonimizados y la media frente a la meta de 70 puntos. Registrar por separado las encuestas incompletas y las dificultades observadas.
 
 ## Acta de revisión especializada
 
 - Especialista, experiencia en tenis, fecha y versión revisada.
-- Partido y juegos examinados.
+- Semifinal Sinner–Djokovic del Australian Open 2026 y juegos examinados.
 - Claridad del índice y de la dirección de las alertas.
 - Interpretación de los pronósticos y pertinencia de las señales para un entrenador.
 - Ejemplo de uso táctico y condiciones en las que una salida podría inducir a error.

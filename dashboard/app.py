@@ -391,7 +391,7 @@ def main() -> None:
             meta_row = (identity_by_match.loc[match_id]
                         if match_id in identity_by_match.index else pd.Series(dtype=object))
             title = _match_title(meta_row) if len(meta_row) else match_id
-            label = f"{title} · {int(row['n_games'])} juegos"
+            label = f"{int(row['year'])} · {title} · {int(row['n_games'])} juegos"
             options[label] = match_id
 
         if not options:
